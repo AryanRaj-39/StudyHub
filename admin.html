@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Homework App</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #a5b4fc);
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+    }
+    input, select, textarea, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #1e40af;
+    }
+    .logout {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Post Homework</h2>
+    <select id="subject">
+      <option value="">Select Subject</option>
+      <option>Maths</option>
+      <option>Science</option>
+      <option>English</option>
+      <option>Hindi</option>
+      <option>Sanskrit</option>
+      <option>Computer</option>
+      <option>Naitik Shiksha</option>
+    </select>
+    <textarea id="description" placeholder="Enter homework details"></textarea>
+    <input type="date" id="date">
+    <button onclick="submitHomework()">Submit Homework</button>
+  </div>
+
+  <div class="container">
+    <h2>Add New Admin</h2>
+    <input type="password" id="newAdminPass" placeholder="New admin password">
+    <button onclick="addAdmin()">Add Admin</button>
+  </div>
+<div class="container">
+  <h2>Student Login History</h2>
+  <ul id="loginHistory" style="max-height: 300px; overflow-y: auto; padding-left: 20px;"></ul>
+</div>
+
+  <div class="container">
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAP9K06BauR4LE7QImMz1dA2GENa13p1mk",
+      authDomain: "homework-web-3e818.firebaseapp.com",
+      databaseURL: "https://homework-web-3e818-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "homework-web-3e818",
+      storageBucket: "homework-web-3e818.appspot.com",
+      messagingSenderId: "367099043591",
+      appId: "1:367099043591:web:3e201f9e25cf6641f66fa2"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ✅ Role Check
+    if (localStorage.getItem("role") !== "admin") {
+      alert("Access denied. Only admins can view this page.");
+      window.location.href = "login.html";
+    }
+
+    // ✅ Submit Homework
+    function submitHomework() {
+      const subject = document.getElementById("subject").value;
+      const description = document.getElementById("description").value;
+      const date = document.getElementById("date").value;
+      const timestamp = Date.now();
+
+      if (!subject || !description || !date) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const id = db.ref().child("homework").push().key;
+      db.ref("homework/" + id).set({ subject, description, date, timestamp });
+      alert("Homework posted!");
+      document.getElementById("subject").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("date").value = "";
+    }
+
+    // ✅ Add Admin Password
+    function addAdmin() {
+      const newPass = document.getElementById("newAdminPass").value.trim();
+      if (!newPass) return alert("Enter password");
+      db.ref("admins").push({ password: newPass });
+      alert("New admin added!");
+      document.getElementById("newAdminPass").value = "";
+    }
+
+    // ✅ Logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    function loadLoginHistory() {
+  const list = document.getElementById("loginHistory");
+  db.ref("loginHistory").once("value", (snapshot) => {
+    list.innerHTML = ""; // Clear existing
+    const data = snapshot.val();
+    if (data) {
+      // Convert to array and sort by newest first
+      const entries = Object.values(data).sort((a, b) => b.time - a.time);
+      entries.forEach(entry => {
+        const li = document.createElement("li");
+        const date = new Date(entry.time).toLocaleString();
+        li.textContent = `${entry.name} - ${date}`;
+        list.appendChild(li);
+      });
+    } else {
+      list.innerHTML = "<li>No login history yet.</li>";
+    }
+  });
+}
+
+// 🔃 Call it when page loads
+loadLoginHistory();
+
+  </script>
+
+</body>
+</html>

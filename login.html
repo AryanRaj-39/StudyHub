@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - Homework App</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #c3ecf9, #a0c4ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    input, button {
+      padding: 12px;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login to Homework App</h2>
+    <input type="text" id="username" placeholder="Enter your name (students)">
+    <input type="password" id="adminPass" placeholder="Admin password (only for admins)">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAP9K06BauR4LE7QImMz1dA2GENa13p1mk",
+      authDomain: "homework-web-3e818.firebaseapp.com",
+      databaseURL: "https://homework-web-3e818-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "homework-web-3e818",
+      storageBucket: "homework-web-3e818.appspot.com",
+      messagingSenderId: "367099043591",
+      appId: "1:367099043591:web:3e201f9e25cf6641f66fa2"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const ADMIN_PASSWORDS = ["Aryan Raj", "aryan25070"]; // 🔒 Static admin passwords
+
+    function login() {
+      const name = document.getElementById("username").value.trim();
+      const password = document.getElementById("adminPass").value.trim();
+
+      if (password && ADMIN_PASSWORDS.includes(password)) {
+        // Admin Login
+        localStorage.setItem("role", "admin");
+        localStorage.setItem("username", "Admin");
+        window.location.href = "admin.html";
+      } else if (name) {
+        // Student Login
+        localStorage.setItem("role", "user");
+        localStorage.setItem("username", name);
+
+        // ✅ Save login time to Firebase
+        const logId = db.ref("loginHistory").push().key;
+        db.ref("loginHistory/" + logId).set({
+  name: name,
+  timestamp: Date.now() // fixed here!
+});
+
+
+        window.location.href = "home.html";
+      } else {
+        alert("Enter your name or admin password.");
+      }
+    }
+  </script>
+</body>
+</html>
