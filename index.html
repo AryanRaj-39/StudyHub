@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Homework App</title>
+  <style>
+    /* Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      transition: all 0.5s ease;
+      background: #a9cceb;
+      color: #333;
+      line-height: 1.6;
+    }
+    .dark-mode {
+      background: #030832;
+      color: #f0f0f0;
+    }
+    .container {
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      min-height: 100vh;
+    }
+    .hidden {
+      display: none !important;
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes confetti {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+    
+    /* Welcome Animation */
+    .welcome-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      animation: fadeIn 0.5s ease;
+    }
+    .welcome-message {
+      font-size: 2rem;
+      color: white;
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: pulse 2s infinite;
+    }
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      opacity: 0;
+    }
+    
+    /* Day Display */
+    .day-display {
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.2);
+      animation: fadeIn 0.8s ease;
+    }
+    .dark-mode .day-display {
+      background: rgba(0,0,0,0.2);
+    }
+    
+    /* Form Elements */
+    input, button, select, textarea {
+      padding: 12px;
+      margin: 10px 0;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    button {
+      background: #0056b3;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #003d82;
+      transform: translateY(-2px);
+    }
+    
+    /* Homework Items */
+    .homework-item {
+      background: #1d77d8;
+      padding: 15px;
+      color: white;
+      border-radius: 10px;
+      margin: 15px 0;
+      animation: fadeIn 0.5s ease;
+    }
+    .dark-mode .homework-item {
+      background: #1a1a2e;
+    }
+    
+    /* Calendar */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin: 20px 0;
+    }
+    .calendar div {
+      padding: 10px;
+      border-radius: 8px;
+      background: #e0f0ff;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .calendar div:hover {
+      background: #1d77d8;
+      color: rgb(0, 0, 0);
+    }
+    .dark-mode .calendar {
+     color: rgb(0, 0, 0);
+    }
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      z-index: 1000;
+      animation: fadein 0.5s ease, fadeout 0.5s 2.5s ease forwards;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeout {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(10px); }
+    }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 600px) {
+      body {
+        font-size: 16px;
+        -webkit-text-size-adjust: 100%;
+      }
+      .container {
+        padding: 15px;
+      }
+      .day-display {
+        font-size: 1.1rem;
+        padding: 12px;
+      }
+      button, input, textarea {
+        padding: 14px;
+        min-height: 50px;
+        font-size: 16px !important;
+      }
+      .calendar div {
+        padding: 8px 2px;
+        font-size: 0.9rem;
+        min-height: 40px;
+      }
+      .welcome-message {
+        font-size: 1.5rem;
+      }
+      #dashboard button {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+      }
+      .toast {
+        width: 90%;
+        right: 5%;
+      }
+      label {
+        display: block;
+        margin: 12px 0 4px;
+        font-weight: 500;
+      }
+      #studentLoginPage, #loginPage {
+        padding: 15px;
+      }
+      hr + button {
+        margin-top: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Student Login -->
+  <div id="studentLoginPage">
+    <h2>Student Login</h2>
+    <input type="text" id="studentName" placeholder="Enter your name" />
+    <button onclick="studentLogin()">Login</button>
+    <hr>
+    <button onclick="showAdminLogin()">Admin Login</button>
+  </div>
+
+  <!-- Admin Login -->
+  <div id="loginPage" class="hidden">
+    <h2>Admin Login</h2>
+    <div id="adminDayDisplay" class="day-display"></div>
+    <input type="text" id="adminName" placeholder="Admin username" />
+    <input type="password" id="adminPassword" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <button onclick="showStudentLogin()">Back to Student Login</button>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="dashboard" class="hidden">
+    <h2>Admin Dashboard</h2>
+    <div id="dashboardDayDisplay" class="day-display"></div>
+    
+    <label>Subject:</label>
+    <input type="text" id="subject" placeholder="Enter subject">
+    <label>Date:</label>
+    <input type="date" id="hwDate">
+    <label>Homework:</label>
+    <textarea id="hwText" placeholder="Enter homework" rows="3"></textarea>
+    <button onclick="postHomework()">Post Homework</button>
+    <button onclick="logout()">Logout</button>
+    <button onclick="toggleDarkMode()"> Dark Mode</button>
+    
+    <div id="homeworkList"></div>
+  </div>
+
+  <!-- Student Dashboard -->
+  <div id="studentDashboard" class="hidden">
+    <h2>Welcome, <span id="studentUser"></span></h2>
+    <div id="studentDayDisplay" class="day-display"></div>
+    
+    <label>Select a date:</label>
+    <div id="calendar" class="calendar"></div>
+    <div id="studentHomeworkList"></div>
+    
+    <button onclick="logout()">Logout</button>
+    <button onclick="toggleDarkMode()"> Dark Mode</button>
+  </div>
+</div>
+
+<!-- Welcome Animation Container -->
+<div id="welcomeContainer" class="hidden"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAP9K06BauR4LE7QImMz1dA2GENa13p1mk",
+    authDomain: "homework-web-3e818.firebaseapp.com",
+    databaseURL: "https://homework-web-3e818-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "homework-web-3e818",
+    storageBucket: "homework-web-3e818.appspot.com",
+    messagingSenderId: "367099043591",
+    appId: "1:367099043591:web:3e201f9e25cf6641f66fa2"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Admin credentials
+  const adminList = {
+    "Aryan Raj": "aryan2507082",
+    "Arnab Kumar": "arnab24584",
+    "Aryan Sharma": "aryan25050",
+    "Arnav Kumar Singh": "arnav27",
+    "Arpit": "arpit30",
+    "Arpit Raj": "arpit31",
+    "Arnav Raj": "arnav43",
+    "Ankit Kumar": "ankit9",
+    "Arnav": "arnav28",
+    "Arown Kumar": "arown44"
+  };
+
+  // DOM elements
+  const studentLoginPage = document.getElementById('studentLoginPage');
+  const loginPage = document.getElementById('loginPage');
+  const dashboard = document.getElementById('dashboard');
+  const studentDashboard = document.getElementById('studentDashboard');
+  const studentUser = document.getElementById('studentUser');
+  const calendarEl = document.getElementById('calendar');
+  const welcomeContainer = document.getElementById('welcomeContainer');
+  
+  // Day display elements
+  const adminDayDisplay = document.getElementById('adminDayDisplay');
+  const dashboardDayDisplay = document.getElementById('dashboardDayDisplay');
+  const studentDayDisplay = document.getElementById('studentDayDisplay');
+
+  // Update day display
+  function updateDayDisplay(element) {
+    const now = new Date();
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    element.textContent = `${dayNames[now.getDay()]}, ${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  }
+
+  // Show welcome animation
+  function showWelcomeAnimation(name, isAdmin = false) {
+    welcomeContainer.innerHTML = `
+      <div class="welcome-animation">
+        <div class="welcome-message">
+          Welcome ${isAdmin ? 'Admin ' : ''}${name}!
+        </div>
+      </div>
+    `;
+    welcomeContainer.classList.remove('hidden');
+    
+    // Create confetti
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      confetti.style.animation = `confetti ${Math.random() * 3 + 2}s linear forwards`;
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      welcomeContainer.querySelector('.welcome-animation').appendChild(confetti);
+    }
+    
+    setTimeout(() => {
+      welcomeContainer.classList.add('hidden');
+    }, 3000);
+  }
+
+  // Login functions
+  function login() {
+    const name = document.getElementById('adminName').value.trim();
+    const pass = document.getElementById('adminPassword').value.trim();
+    
+    if (adminList[name] === pass) {
+      sessionStorage.setItem('admin', name);
+      showWelcomeAnimation(name, true);
+      
+      setTimeout(() => {
+        loginPage.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        updateDayDisplay(dashboardDayDisplay);
+        fetchHomework();
+      }, 3000);
+    } else {
+      alert('Invalid admin credentials');
+    }
+  }
+
+  function studentLogin() {
+    const name = document.getElementById('studentName').value.trim();
+    if (!name) return alert("Please enter your name");
+    
+    sessionStorage.setItem('student', name);
+    showWelcomeAnimation(name);
+    
+    setTimeout(() => {
+      studentLoginPage.classList.add('hidden');
+      studentDashboard.classList.remove('hidden');
+      studentUser.textContent = name;
+      updateDayDisplay(studentDayDisplay);
+      loadCalendar();
+    }, 3000);
+  }
+
+  function postHomework() {
+    const subject = document.getElementById('subject').value;
+    const date = document.getElementById('hwDate').value;
+    const text = document.getElementById('hwText').value;
+    if (!subject || !date || !text) return alert('Fill all fields');
+    
+    const id = Date.now();
+    db.ref('homework/' + id).set({ subject, date, text });
+    
+    // Show success message
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = 'Homework posted successfully!';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function fetchHomework() {
+    const now = Date.now();
+    db.ref('homework').on('value', (snap) => {
+      const list = document.getElementById('homeworkList');
+      list.innerHTML = '';
+      snap.forEach((hw) => {
+        const data = hw.val();
+        const key = hw.key;
+        const age = now - Number(key);
+        if (age > 30 * 24 * 60 * 60 * 1000) {
+          db.ref('homework/' + key).remove();
+        } else {
+          list.innerHTML += `
+            <div class='homework-item'>
+              <strong>${data.subject}</strong> - ${data.date}<br>${data.text}<br>
+              <button onclick="editHomework('${key}', '${escapeHtml(data.subject)}', '${data.date}', '${escapeHtml(data.text)}')">Edit</button>
+              <button onclick="deleteHomework('${key}')">Delete</button>
+            </div>`;
+        }
+      });
+    });
+  }
+
+  function deleteHomework(id) { 
+    db.ref('homework/' + id).remove();
+    // Show success message
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = 'Homework deleted!';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function editHomework(id, subject, date, text) {
+    document.getElementById('subject').value = subject;
+    document.getElementById('hwDate').value = date;
+    document.getElementById('hwText').value = text;
+    deleteHomework(id);
+  }
+
+  function loadCalendar() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    calendarEl.innerHTML = '';
+    for (let i = 0; i < firstDay; i++) calendarEl.innerHTML += '<div></div>';
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = day.toString().padStart(2, '0');
+      const m = (month + 1).toString().padStart(2, '0');
+      const dateStr = `${year}-${m}-${d}`;
+      const dayEl = document.createElement('div');
+      dayEl.textContent = day;
+      dayEl.onclick = function() {
+        loadHomeworkForDate(dateStr);
+        // Update day display when a date is clicked
+        const clickedDate = new Date(dateStr);
+        studentDayDisplay.textContent = 
+          `${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][clickedDate.getDay()]}, 
+           ${['January','February','March','April','May','June','July','August','September','October','November','December'][clickedDate.getMonth()]} 
+           ${clickedDate.getDate()}, ${clickedDate.getFullYear()}`;
+      };
+      calendarEl.appendChild(dayEl);
+    }
+  }
+
+  function loadHomeworkForDate(date) {
+    const container = document.getElementById('studentHomeworkList');
+    db.ref('homework').once('value', (snap) => {
+      container.innerHTML = '';
+      snap.forEach(hw => {
+        const data = hw.val();
+        if (data.date === date) {
+          container.innerHTML += `<div class='homework-item'><strong>${data.subject}</strong><br>${data.text}</div>`;
+        }
+      });
+      if (!container.innerHTML) container.innerHTML = '<p>No homework for this date.</p>';
+    });
+  }
+
+  function showAdminLogin() {
+    studentLoginPage.classList.add('hidden');
+    loginPage.classList.remove('hidden');
+    updateDayDisplay(adminDayDisplay);
+  }
+
+  function showStudentLogin() {
+    loginPage.classList.add('hidden');
+    studentLoginPage.classList.remove('hidden');
+  }
+
+  function logout() {
+    sessionStorage.clear();
+    location.reload();
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  }
+
+  function escapeHtml(unsafe) {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Initialize app
+  window.onload = () => {
+    // Initialize day displays
+    updateDayDisplay(adminDayDisplay);
+    updateDayDisplay(dashboardDayDisplay);
+    updateDayDisplay(studentDayDisplay);
+    
+    // Check dark mode
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+    
+    // Check login state
+    if (sessionStorage.getItem('admin')) {
+      const adminName = sessionStorage.getItem('admin');
+      loginPage.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      updateDayDisplay(dashboardDayDisplay);
+      fetchHomework();
+    } else if (sessionStorage.getItem('student')) {
+      const studentName = sessionStorage.getItem('student');
+      studentLoginPage.classList.add('hidden');
+      studentDashboard.classList.remove('hidden');
+      studentUser.textContent = studentName;
+      updateDayDisplay(studentDayDisplay);
+      loadCalendar();
+    }
+  };
+</script>
+</body>
+</html>
